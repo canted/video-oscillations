@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Camera-driven frequency and phase modulation with a customizable two-color rainbow gradient.">
+<title>Video Oscillations</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="./styles.css">
+<script src="./app.js" defer></script>
+</head>
+<body>
+<div id="app">
+  <div id="view">
+    <canvas id="gl" aria-label="Live camera oscillator effect"></canvas>
+    <p id="msg" role="status">requesting camera…</p>
+    <button id="capture" type="button">capture</button>
+  </div>
+
+  <section id="gui">
+    <button id="toggle" type="button" aria-expanded="true">hide controls</button>
+    <div id="panel">
+      <h1>video oscillations</h1>
+      <fieldset id="colors">
+        <legend>color gradient</legend>
+        <div class="color-endpoint">
+          <label for="color-low">color 1 <input id="color-low" type="color" value="#6652b1"></label>
+          <div id="swatches-low" class="swatches" role="group" aria-label="Color 1 rainbow palette"></div>
+        </div>
+        <div id="gradient-preview" role="img" aria-label="Selected color gradient"></div>
+        <div class="color-endpoint">
+          <label for="color-high">color 2 <input id="color-high" type="color" value="#dbbd42"></label>
+          <div id="swatches-high" class="swatches" role="group" aria-label="Color 2 rainbow palette"></div>
+        </div>
+        <div class="color-actions"><button id="swap-colors" type="button">swap colors</button><button id="grayscale" type="button">black &amp; white</button></div>
+      </fieldset>
+      <div class="divider"></div>
+      <div class="preset-row">
+        <label for="preset">preset</label>
+        <select id="preset"></select>
+        <button id="preset-apply" type="button" title="re-apply preset" disabled>↺</button>
+      </div>
+      <label class="row">mode
+        <select id="mode">
+          <option value="1">phase mod</option>
+          <option value="0">frequency mod</option>
+        </select>
+      </label>
+      <label>frequency
+        <input id="freq-n" class="num" type="number" min="0" max="120" value="5" step="1">
+        <input id="freq" type="range" min="0" max="120" value="5" step="1">
+      </label>
+      <label>depth
+        <input id="depth-n" class="num" type="number" min="-100" max="100" value="8" step="0.5">
+        <input id="depth" type="range" min="-100" max="100" value="8" step="0.5">
+      </label>
+      <label>phase
+        <input id="phase-n" class="num" type="number" min="0" max="1" value="0" step="0.001">
+        <input id="phase" type="range" min="0" max="1" value="0" step="0.001">
+      </label>
+      <label>scroll speed
+        <input id="scroll-n" class="num" type="number" min="0" max="2" value="0.3" step="0.01">
+        <input id="scroll" type="range" min="0" max="2" value="0.3" step="0.01">
+      </label>
+      <div class="section-head">waveform</div>
+      <label class="row">shape
+        <select id="wave">
+          <option value="0">sine</option>
+          <option value="1">triangle</option>
+          <option value="2">square</option>
+          <option value="3">pulse</option>
+          <option value="4">ramp up</option>
+          <option value="5">ramp down</option>
+        </select>
+      </label>
+      <label id="dutyRow">duty
+        <input id="duty-n" class="num" type="number" min="0.05" max="0.95" value="0.5" step="0.01">
+        <input id="duty" type="range" min="0.05" max="0.95" value="0.5" step="0.01">
+      </label>
+      <label id="widthRow">pulse width
+        <input id="width-n" class="num" type="number" min="2" max="12" value="4" step="0.5">
+        <input id="width" type="range" min="2" max="12" value="4" step="0.5">
+      </label>
+      <div class="section-head">source image</div>
+      <label>blur
+        <input id="blur-n" class="num" type="number" min="0" max="5" value="1.5" step="0.05">
+        <input id="blur" type="range" min="0" max="5" value="1.5" step="0.05">
+      </label>
+      <label>contrast
+        <input id="contrast-n" class="num" type="number" min="0" max="4" value="1" step="0.05">
+        <input id="contrast" type="range" min="0" max="4" value="1" step="0.05">
+      </label>
+      <label>invert
+        <input type="checkbox" id="invert-check">
+      </label>
+      <label>view source
+        <input type="checkbox" id="pip-check">
+      </label>
+      <div class="divider"></div>
+      <button id="cam-switch" type="button">switch camera</button>
+      <button id="shot" type="button">save image</button>
+      <p class="credits">Adapted from <a href="https://lab.palomakop.tv/freqphasemod/">freqPhaseMod</a> by <a href="https://palomakop.tv/">Paloma Kop</a>. Added two-color gradients. <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> · <a href="https://github.com/canted/video-oscillations">source</a></p>
+    </div>
+  </section>
+</div>
+
+
+
+{% raw %}
+
+{% endraw %}
+</body>
+</html>

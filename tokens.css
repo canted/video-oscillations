@@ -1,0 +1,10 @@
+/* Rainbow palette from the supplied Downfold tokens.css. */
+:root {
+  --color-red: #db4275;
+  --color-orange: #e05b52;
+  --color-yellow: #dbbd42;
+  --color-green: #6eb951;
+  --color-aqua: #3aa8be;
+  --color-blue: #2c7fd8;
+  --color-purple: #6652b1;
+}

@@ -1,0 +1,135 @@
+@import url('./tokens.css');
+:root { color-scheme: dark; --bg-color:#191b20; --fg-color:#ececf2; }
+* { box-sizing:border-box; }
+body { margin:0; font:16px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background:var(--bg-color); color:var(--fg-color); }
+a { color:#bcb4ee; }
+button, input, select { font:inherit; }
+button { cursor:pointer; }
+:focus-visible { outline:2px solid var(--color-yellow); outline-offset:3px; }
+
+  /* app splits into webcam view + gui panel; row on desktop, column on mobile */
+  #app { position:fixed; inset:0; display:flex; }
+
+  #view {
+    flex:1; position:relative;
+    min-width:0; min-height:0;
+    background:#000; overflow:hidden;
+  }
+
+  /* canvas fills the view and letterboxes to camera aspect via object-fit */
+  #gl { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; display:block; }
+
+  #msg {
+    position:absolute; margin:0; padding:0 1ch;
+    color:#f9f9f0; font-size:0.8rem; text-align:center;
+  }
+
+  /* capture button: only visible when the panel is collapsed (else the panel's
+     own save button covers it). corner-placed to obscure minimal image. */
+  #capture {
+    position:absolute; left:1ch; bottom:1ch; display:none;
+    font:inherit; font-size:0.9em; color:#f9f9f0;
+    background:rgba(0,0,0,0.45); border:1.5px solid #f9f9f0;
+    border-radius:0.4rem; padding:0.6ch 1.4ch; cursor:pointer;
+  }
+  #app.controls-collapsed #capture { display:block; }
+
+  /* gui: three.js-style, lab colors + font */
+  #gui {
+    flex:none; width:280px; max-width:280px;
+    display:flex; flex-direction:column;
+    color:var(--fg-color); background:var(--bg-color);
+    border-left:1.5px solid var(--fg-color);
+    font-size:1em; line-height:1.4;
+  }
+
+  #toggle {
+    font:inherit; color:inherit;
+    background:none; border:none; border-bottom:1.5px solid var(--fg-color);
+    padding:0.6ch 1ch; text-align:left; cursor:pointer; flex:none;
+  }
+
+  #panel { display:flex; flex-direction:column; gap:1.2ch; padding:1.6ch; overflow-y:auto; }
+  .flavor { margin:0; font-size:0.85em;font-style:italic; opacity:0.7; line-height:1.5; }
+  .section-head { font-size:0.78em; text-transform:uppercase; letter-spacing:0.06em; opacity:0.5; margin-top:0.6ch; border-top:1px solid currentColor; padding-top:0.7ch; }
+  .divider { border-top:1px solid currentColor; opacity:0.25; margin-top:0.4ch; }
+  #gui.collapsed #panel { display:none; }
+
+  /* desktop collapsed: shrink to a thin vertical-text bar you click to re-open */
+  #gui.collapsed { width:auto; max-width:none; }
+  #gui.collapsed #toggle {
+    writing-mode:vertical-rl; text-orientation:mixed;
+    border-bottom:none; padding:1ch 0.6ch; height:100%;
+  }
+
+  /* label text left, number right on the top row; slider spans full width below */
+  #panel label { display:grid; grid-template-columns:1fr auto; align-items:center; gap:0.2ch 0.6ch; }
+  #panel label.row { margin-bottom:0.6ch; }
+
+  .preset-row { display:flex; align-items:center; gap:0.4ch; margin-bottom:0.6ch; }
+  .preset-row span { flex:1; }
+  #preset-apply {
+    font:inherit; color:inherit;
+    background:none; border:1.5px solid var(--fg-color);
+    border-radius:0.4rem; padding:0.1em 0.8ch; cursor:pointer; flex:none;
+  }
+  #preset-apply:disabled { opacity:0.3; cursor:default; }
+  #panel input[type=range] { grid-column:1 / -1; width:100%; accent-color:var(--fg-color); }
+  #panel input[type=checkbox] { width:1.5em; height:1.5em; accent-color:var(--fg-color); cursor:pointer; }
+
+  .num {
+    width:7ch; text-align:right;
+    font:inherit; color:inherit;
+    background:var(--bg-color); border:1.5px solid var(--fg-color);
+    border-radius:0.4rem; padding:0.1em 0.3ch;
+  }
+  .num::-webkit-inner-spin-button, .num::-webkit-outer-spin-button { -webkit-appearance:none; margin:0; }
+  .num { -moz-appearance:textfield; appearance:textfield; }
+
+  #panel select {
+    font:inherit; color:inherit;
+    background:var(--bg-color); border:1.5px solid var(--fg-color);
+    border-radius:0.4rem; padding:0.1em 0.4ch;
+    appearance:auto; -webkit-appearance:auto;
+  }
+
+  #shot, #cam-switch {
+    font:inherit; color:inherit;
+    background:none; border:1.5px solid var(--fg-color);
+    border-radius:0.4rem; padding:0.4ch 1ch; cursor:pointer; margin-top:0.4ch;
+  }
+
+  /* exit link: inside the panel, visually set apart */
+  #exit {
+    text-align:center;
+    border-radius:0.4rem; padding:0.4ch 1ch; margin-top:0.8ch; margin-bottom:1.2ch;
+  }
+
+  /* mobile: stack webcam over gui, gui scrolls */
+  @media (max-width:600px) {
+    #app { flex-direction:column; }
+    #gui { width:auto; max-width:none; border-left:none; border-top:1.5px solid var(--fg-color); max-height:45vh; }
+    #gui.collapsed { max-height:none; }
+    /* keep the toggle horizontal on mobile (bottom panel, vertical text is awkward) */
+    #gui.collapsed #toggle { writing-mode:horizontal-tb; height:auto; padding:0.6ch 1ch; }
+  }
+
+#gui { width:320px; max-width:320px; border-color:#484a54; }
+#panel { gap:14px; padding:20px; }
+h1 { margin:0 0 4px; font-size:1.15rem; font-weight:600; }
+#colors { margin:0; padding:12px; border:1px solid #484a54; border-radius:6px; min-width:0; }
+#colors legend { padding:0 5px; font-size:.875rem; }
+.color-endpoint label { font-size:.875rem; }
+input[type=color] { width:48px; height:32px; padding:2px; background:transparent; border:1px solid #666975; border-radius:4px; cursor:pointer; }
+.swatches { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:5px; margin:10px 0; }
+.swatch { width:100%; aspect-ratio:1; padding:0; border:2px solid transparent; border-radius:50%; }
+.swatch[aria-pressed=true] { border-color:white; box-shadow:0 0 0 2px #191b20 inset; }
+#gradient-preview { height:14px; border-radius:3px; margin:14px 0; }
+.color-actions { display:flex; gap:8px; margin-top:12px; }
+.color-actions button { flex:1; background:none; color:inherit; border:1px solid #666975; border-radius:4px; padding:7px 4px; font-size:.875rem; }
+.credits { margin:10px 0; font-size:.75rem; line-height:1.6; color:#b8bac5; }
+.section-head { font-size:.875rem; opacity:.75; }
+.preset-row label { flex:1; }
+#msg { top:50%; left:50%; transform:translate(-50%,-50%); width:min(90%,40ch); font-size:1rem; line-height:1.6; }
+#panel input[type=range] { accent-color:var(--color-aqua); min-height:24px; }
+@media(max-width:600px) { #gui { width:auto; max-width:none; max-height:55dvh; } #view { min-height:35dvh; } }

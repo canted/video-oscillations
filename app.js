@@ -345,14 +345,27 @@ const PRESETS = [
   const tokens = getComputedStyle(document.documentElement);
   const rgb = hex => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255);
   let colorLow, colorHigh;
+  // Piecewise RGB interpolation: black -> exact base color -> white.
+  function shadedColor(endpoint){
+    const base = rgb(el('color-' + endpoint).value);
+    const t = +el('shade-' + endpoint).value / 100;
+    return base.map(c => t <= 0.5 ? c * t * 2 : c + (1 - c) * (t - 0.5) * 2);
+  }
   function syncColors(){
-    const low = el('color-low').value, high = el('color-high').value;
-    colorLow = rgb(low); colorHigh = rgb(high);
+    colorLow = shadedColor('low'); colorHigh = shadedColor('high');
+    const cssColor = color => `rgb(${color.map(c => c * 255).join(', ')})`;
+    const low = cssColor(colorLow), high = cssColor(colorHigh);
     el('gradient-preview').style.background = `linear-gradient(to right, ${low}, ${high})`;
     el('gradient-preview').setAttribute('aria-label', `Gradient from ${low} to ${high}`);
     for (const endpoint of ['low', 'high']){
+      const base = el('color-' + endpoint).value;
+      const slider = el('shade-' + endpoint);
+      const shade = +slider.value;
+      slider.style.setProperty('--range-track', `linear-gradient(to right, #000 22px, ${base} 50%, #fff calc(100% - 22px))`);
+      slider.setAttribute('aria-valuetext', shade === 0 ? 'Black' : shade === 100 ? 'White' : shade === 50 ? 'Original color, 50%' : `${shade}%, ${shade < 50 ? 'darker' : 'lighter'}`);
+      el('shade-' + endpoint + '-value').value = `${shade}%`;
       for (const button of el('swatches-' + endpoint).children){
-        button.setAttribute('aria-pressed', String(button.dataset.color === el('color-' + endpoint).value));
+        button.setAttribute('aria-pressed', String(button.dataset.color === base));
       }
     }
   }
@@ -370,15 +383,16 @@ const PRESETS = [
       el('swatches-' + endpoint).appendChild(button);
     }
     el('color-' + endpoint).addEventListener('input', syncColors);
+    el('shade-' + endpoint).addEventListener('input', syncColors);
   }
   el('swap-colors').addEventListener('click', () => {
     const low = el('color-low').value;
     el('color-low').value = el('color-high').value;
     el('color-high').value = low;
+    const shade = el('shade-low').value;
+    el('shade-low').value = el('shade-high').value;
+    el('shade-high').value = shade;
     syncColors();
-  });
-  el('grayscale').addEventListener('click', () => {
-    el('color-low').value = '#000000'; el('color-high').value = '#ffffff'; syncColors();
   });
   syncColors();
   // FM's prefix sum requires floating-point render targets.

@@ -10,10 +10,10 @@ export function gradientModel(stops, stepping) {
   const s = Math.max(0, Math.min(1, stepping));
   const p = sorted.map(stop => stop.position / 100);
   const last = p.length - 1;
-  // Grow half a neighboring gap beyond each endpoint, then normalize.
-  // At full stepping each endpoint receives a whole gap, not half a gap.
-  const left = s * (p[0] - (p[1] - p[0]) / 2);
-  const right = (1 - s) + s * (p[last] + (p[last] - p[last - 1]) / 2);
+  // Extend only beyond the visible domain: never crop the constant-color
+  // tails when an endpoint moves inward. Edge stops still receive a full gap.
+  const left = s * Math.min(0, p[0] - (p[1] - p[0]) / 2);
+  const right = 1 + s * Math.max(0, p[last] + (p[last] - p[last - 1]) / 2 - 1);
   const span = right - left;
   const starts = [], ends = [];
   for (let i = 0; i < last; i++) {

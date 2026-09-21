@@ -44,6 +44,22 @@ test('two stops and moved endpoints stay finite throughout stepping',()=>{
   for(const positions of [[0,100],[20,80],[30,30.1]])for(const s of [0,.5,1]){
     const m=gradientModel(stops(positions),s);
     for(const x of [0,.25,.5,.75,1]) assert.ok(sampleGradient(m,x).every(Number.isFinite));
-    if(s===1)near(m.starts[0],.5);
+
+  }
+});
+
+test('moving the first of two stops to 90 or 99 preserves its long color tail', () => {
+  for (const position of [90,99]) for (const stepping of [0,.5,.99,1]) {
+    const model = gradientModel(stops([position,100]),stepping);
+    assert.ok(model.starts[0] >= position/100 - .001);
+    assert.deepEqual(sampleGradient(model,.89),[1,0,0]);
+    assert.deepEqual(sampleGradient(model,1),[0,1,0]);
+  }
+});
+test('moving the last stop inward preserves the right color tail', () => {
+  for (const stepping of [0,.5,1]) {
+    const model = gradientModel(stops([0,10]),stepping);
+    assert.ok(model.ends[0] < .11);
+    assert.deepEqual(sampleGradient(model,.11),[0,1,0]);
   }
 });

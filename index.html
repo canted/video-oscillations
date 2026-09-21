@@ -23,17 +23,12 @@
       <h1>video oscillations</h1>
       <fieldset id="colors">
         <legend>color gradient</legend>
-        <p class="gradient-help">Tap the spectrum to add a stop. Drag a stop to move it.</p>
+        <p class="gradient-help">Tap the spectrum to add. Drag stops to move. Double-tap or drag down to remove.</p>
         <div class="gradient-editor">
-          <canvas id="gradient-stops-preview" width="1024" height="1" aria-label="Color spectrum. Tap to add a stop."></canvas>
+          <canvas id="gradient-stops-preview" width="1024" height="1" role="button" tabindex="0" aria-label="Color spectrum. Tap to add a stop; Enter adds in the largest gap."></canvas>
           <div id="stop-handles" role="group" aria-label="Gradient stops"></div>
         </div>
-        <div class="color-actions">
-          <button id="add-stop" type="button">add stop</button>
-          <button id="delete-stop" type="button">delete stop</button>
-        </div>
-        <label class="row" for="stop-select">edit <select id="stop-select" aria-label="Selected gradient stop"></select></label>
-        <label for="stop-position">position % <input class="num" id="stop-position" type="number" min="0" max="100" step="0.1" inputmode="decimal"></label>
+        <p id="stop-status" class="stop-status" role="status" aria-live="polite"></p>
         <label for="stop-color">color <input id="stop-color" type="color" value="#db4275"></label>
         <div id="stop-swatches" class="swatches" role="group" aria-label="Selected stop rainbow palette"></div>
         <label for="stop-shade" class="shade-label">shade <output id="stop-shade-value" for="stop-shade">50%</output></label>

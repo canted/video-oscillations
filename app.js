@@ -1,3 +1,4 @@
+import { createGradientEditor } from './gradient-editor.mjs';
 // Adapted from freqPhaseMod by Paloma Kop, CC BY-NC-SA 4.0. See README.md.
 // presets: add entries here to grow the preset menu
 const PRESETS = [
@@ -11,6 +12,7 @@ const PRESETS = [
 ];
 
 (() => {
+  const gradient = createGradientEditor();
   const canvas = document.getElementById('gl');
   const msg = document.getElementById('msg');
   const gl = canvas.getContext('webgl2', { preserveDrawingBuffer:true });
@@ -120,7 +122,21 @@ const PRESETS = [
   uniform sampler2D src;      // PM: blurred source. FM: prefix-sum (integral) texture
   uniform float uFreq, uDepth, uPhase, uDuty, uWidth;
   uniform int uWave, uMode;
-  uniform vec3 uColorLow, uColorHigh;
+  uniform int uStopCount;
+  uniform vec3 uColors[16];
+  uniform float uStarts[15], uEnds[15];
+  vec3 gradientColor(float x){
+    for (int i = 0; i < 15; i++){
+      if (i >= uStopCount - 1) break;
+      if (x < uStarts[i]) return uColors[i];
+      if (x < uEnds[i]){
+        float t = (x - uStarts[i]) / (uEnds[i] - uStarts[i]);
+        t = t * t * (3.0 - 2.0 * t);
+        return mix(uColors[i], uColors[i + 1], t);
+      }
+    }
+    return uColors[uStopCount - 1];
+  }
   #define TAU 6.28318530718
   float luma(vec3 c){ return dot(c, vec3(0.2126, 0.7152, 0.0722)); }
   void main(){
@@ -165,7 +181,7 @@ const PRESETS = [
     else if (uWave == 4) carrier = tph;
     else                 carrier = 1.0 - tph;
 
-    frag = vec4(mix(uColorLow, uColorHigh, clamp(carrier, 0.0, 1.0)), 1.0);
+    frag = vec4(gradientColor(clamp(carrier, 0.0, 1.0)), 1.0);
   }`;
 
   // grayscale blit for the PiP source preview
@@ -213,8 +229,10 @@ const PRESETS = [
   const uUpTexel   = gl.getUniformLocation(progUp, 'texel');
   const uMix = { a:gl.getUniformLocation(progMix,'a'), b:gl.getUniformLocation(progMix,'b'), t:gl.getUniformLocation(progMix,'t') };
   const M = {
-    colorLow:gl.getUniformLocation(progMain,'uColorLow'),
-    colorHigh:gl.getUniformLocation(progMain,'uColorHigh'),
+    stopCount:gl.getUniformLocation(progMain,'uStopCount'),
+    colors:gl.getUniformLocation(progMain,'uColors[0]'),
+    starts:gl.getUniformLocation(progMain,'uStarts[0]'),
+    ends:gl.getUniformLocation(progMain,'uEnds[0]'),
     freq:gl.getUniformLocation(progMain,'uFreq'),
     depth:gl.getUniformLocation(progMain,'uDepth'),
     phase:gl.getUniformLocation(progMain,'uPhase'),
@@ -340,61 +358,7 @@ const PRESETS = [
     });
 
   const el = id => document.getElementById(id);
-  // Use the exact rainbow tokens from the supplied palette for both swatches and output.
-  const palette = ['red', 'orange', 'yellow', 'green', 'aqua', 'blue', 'purple'];
-  const tokens = getComputedStyle(document.documentElement);
-  const rgb = hex => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255);
-  let colorLow, colorHigh;
-  // Piecewise RGB interpolation: black -> exact base color -> white.
-  function shadedColor(endpoint){
-    const base = rgb(el('color-' + endpoint).value);
-    const t = +el('shade-' + endpoint).value / 100;
-    return base.map(c => t <= 0.5 ? c * t * 2 : c + (1 - c) * (t - 0.5) * 2);
-  }
-  function syncColors(){
-    colorLow = shadedColor('low'); colorHigh = shadedColor('high');
-    const cssColor = color => `rgb(${color.map(c => c * 255).join(', ')})`;
-    const low = cssColor(colorLow), high = cssColor(colorHigh);
-    el('gradient-preview').style.background = `linear-gradient(to right, ${low}, ${high})`;
-    el('gradient-preview').setAttribute('aria-label', `Gradient from ${low} to ${high}`);
-    for (const endpoint of ['low', 'high']){
-      const base = el('color-' + endpoint).value;
-      const slider = el('shade-' + endpoint);
-      const shade = +slider.value;
-      slider.style.setProperty('--range-track', `linear-gradient(to right, #000 22px, ${base} 50%, #fff calc(100% - 22px))`);
-      slider.setAttribute('aria-valuetext', shade === 0 ? 'Black' : shade === 100 ? 'White' : shade === 50 ? 'Original color, 50%' : `${shade}%, ${shade < 50 ? 'darker' : 'lighter'}`);
-      el('shade-' + endpoint + '-value').value = `${shade}%`;
-      for (const button of el('swatches-' + endpoint).children){
-        button.setAttribute('aria-pressed', String(button.dataset.color === base));
-      }
-    }
-  }
-  for (const endpoint of ['low', 'high']){
-    for (const name of palette){
-      const hex = tokens.getPropertyValue('--color-' + name).trim();
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.className = 'swatch';
-      button.dataset.color = hex;
-      button.style.backgroundColor = hex;
-      button.title = `${name} (${hex})`;
-      button.setAttribute('aria-label', `${name} ${hex}`);
-      button.addEventListener('click', () => { el('color-' + endpoint).value = hex; syncColors(); });
-      el('swatches-' + endpoint).appendChild(button);
-    }
-    el('color-' + endpoint).addEventListener('input', syncColors);
-    el('shade-' + endpoint).addEventListener('input', syncColors);
-  }
-  el('swap-colors').addEventListener('click', () => {
-    const low = el('color-low').value;
-    el('color-low').value = el('color-high').value;
-    el('color-high').value = low;
-    const shade = el('shade-low').value;
-    el('shade-low').value = el('shade-high').value;
-    el('shade-high').value = shade;
-    syncColors();
-  });
-  syncColors();
+  let gradientRevision = -1;
   // FM's prefix sum requires floating-point render targets.
   if (!floatOK){
     el('mode').querySelector('[value="0"]').disabled = true;
@@ -514,8 +478,13 @@ const PRESETS = [
       gl.activeTexture(gl.TEXTURE0);
       gl.uniform1i(uMainSrc, 0);
       gl.bindTexture(gl.TEXTURE_2D, modSrc.tex);
-      gl.uniform3fv(M.colorLow, colorLow);
-      gl.uniform3fv(M.colorHigh, colorHigh);
+      if (gradientRevision !== gradient.revision){
+        gl.uniform1i(M.stopCount, gradient.model.colors.length);
+        gl.uniform3fv(M.colors, gradient.model.colors.flat());
+        gl.uniform1fv(M.starts, gradient.model.starts);
+        gl.uniform1fv(M.ends, gradient.model.ends);
+        gradientRevision = gradient.revision;
+      }
       gl.uniform1i(M.mode, mode);
       gl.uniform1f(M.freq, +el('freq').value);
       gl.uniform1f(M.depth, +el('depth').value);

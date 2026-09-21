@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="Camera-driven frequency and phase modulation with a customizable two-color rainbow gradient.">
+<meta name="description" content="Camera-driven frequency and phase modulation with a customizable multi-stop rainbow gradient.">
 <title>Video Oscillations</title>
 <link rel="icon" href="data:,">
 <link rel="stylesheet" href="./styles.css">
-<script src="./app.js" defer></script>
+<script type="module" src="./app.js"></script>
 </head>
 <body>
 <div id="app">
@@ -23,22 +23,27 @@
       <h1>video oscillations</h1>
       <fieldset id="colors">
         <legend>color gradient</legend>
-        <div class="color-endpoint">
-          <label for="color-low">color 1 <input id="color-low" type="color" value="#db4275"></label>
-          <div id="swatches-low" class="swatches" role="group" aria-label="Color 1 rainbow palette"></div>
-          <label for="shade-low" class="shade-label">shade <output id="shade-low-value" for="shade-low">50%</output></label>
-          <input id="shade-low" type="range" min="0" max="100" step="0.1" value="50" aria-label="Color 1 shade" aria-describedby="shade-low-guide">
-          <div class="shade-guide" id="shade-low-guide"><span>black</span><span>color · 50%</span><span>white</span></div>
+        <p class="gradient-help">Tap the spectrum to add a stop. Drag a stop to move it.</p>
+        <div class="gradient-editor">
+          <canvas id="gradient-stops-preview" width="1024" height="1" aria-label="Color spectrum. Tap to add a stop."></canvas>
+          <div id="stop-handles" role="group" aria-label="Gradient stops"></div>
         </div>
-        <div id="gradient-preview" role="img" aria-label="Selected color gradient"></div>
-        <div class="color-endpoint">
-          <label for="color-high">color 2 <input id="color-high" type="color" value="#3aa8be"></label>
-          <div id="swatches-high" class="swatches" role="group" aria-label="Color 2 rainbow palette"></div>
-          <label for="shade-high" class="shade-label">shade <output id="shade-high-value" for="shade-high">50%</output></label>
-          <input id="shade-high" type="range" min="0" max="100" step="0.1" value="50" aria-label="Color 2 shade" aria-describedby="shade-high-guide">
-          <div class="shade-guide" id="shade-high-guide"><span>black</span><span>color · 50%</span><span>white</span></div>
+        <div class="color-actions">
+          <button id="add-stop" type="button">add stop</button>
+          <button id="delete-stop" type="button">delete stop</button>
         </div>
-        <div class="color-actions"><button id="swap-colors" type="button">swap colors</button></div>
+        <label class="row" for="stop-select">edit <select id="stop-select" aria-label="Selected gradient stop"></select></label>
+        <label for="stop-position">position % <input class="num" id="stop-position" type="number" min="0" max="100" step="0.1" inputmode="decimal"></label>
+        <label for="stop-color">color <input id="stop-color" type="color" value="#db4275"></label>
+        <div id="stop-swatches" class="swatches" role="group" aria-label="Selected stop rainbow palette"></div>
+        <label for="stop-shade" class="shade-label">shade <output id="stop-shade-value" for="stop-shade">50%</output></label>
+        <input id="stop-shade" type="range" min="0" max="100" step="0.1" value="50" aria-describedby="shade-guide">
+        <div class="shade-guide" id="shade-guide"><span>black</span><span>color · 50%</span><span>white</span></div>
+        <label for="stepping" class="stepping-label">stepping <output id="stepping-value" for="stepping">0%</output></label>
+        <input id="stepping" type="range" min="0" max="100" step="1" value="0" aria-describedby="stepping-guide">
+        <div class="shade-guide" id="stepping-guide"><span>smooth</span><span>stripes</span></div>
+        <span class="result-label">result</span>
+        <canvas id="gradient-result" width="1024" height="1" role="img" aria-label="Resulting gradient with stepping applied"></canvas>
       </fieldset>
       <div class="divider"></div>
       <div class="preset-row">
@@ -105,7 +110,7 @@
       <div class="divider"></div>
       <button id="cam-switch" type="button">switch camera</button>
       <button id="shot" type="button">save image</button>
-      <p class="credits">Adapted from <a href="https://lab.palomakop.tv/freqphasemod/">freqPhaseMod</a> by <a href="https://palomakop.tv/">Paloma Kop</a>. Added two-color gradients. <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> · <a href="https://github.com/canted/video-oscillations">source</a></p>
+      <p class="credits">Adapted from <a href="https://lab.palomakop.tv/freqphasemod/">freqPhaseMod</a> by <a href="https://palomakop.tv/">Paloma Kop</a>. Added editable color gradients. <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> · <a href="https://github.com/canted/video-oscillations">source</a></p>
     </div>
   </section>
 </div>

@@ -1,4 +1,4 @@
-@import url('./tokens.css');
+@import url('./tokens.css?v=73cd39352e3a');
 :root { color-scheme: dark; --bg-color:#191b20; --fg-color:#ececf2; }
 * { box-sizing:border-box; }
 body { margin:0; font:16px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background:var(--bg-color); color:var(--fg-color); }
@@ -189,3 +189,5 @@ input[type=color] { width:48px; height:44px; padding:2px; background:transparent
 .stop-status { margin:0; min-height:1.5em; color:#ffb2bc; font-size:.8125rem; }
 
 .gradient-stop { user-select:none; -webkit-user-select:none; -webkit-tap-highlight-color:transparent; }
+
+.startup-reload { display:block; margin:12px auto 0; min-height:44px; padding:8px 20px; border:1px solid currentColor; border-radius:4px; background:#191b20; color:#ececf2; }

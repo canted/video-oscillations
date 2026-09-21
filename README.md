@@ -22,7 +22,7 @@ Requires WebGL 2 and camera access over HTTPS or localhost. Frequency modulation
 
 ## Development and GitHub Pages
 
-No dependencies or build step. Run the gradient geometry tests with `node --test tests/gradient.test.mjs`. Run `python3 -m http.server 8000` and open `http://localhost:8000`. In GitHub Settings → Pages, deploy from the `main` branch, `/ (root)`. Relative asset URLs support project Pages paths.
+No dependencies or bundling step. Before committing a release, run `node scripts/version-assets.mjs` to refresh content-versioned asset URLs and prevent cached scripts from mixing with new HTML. Run the gradient geometry tests with `node --test tests/gradient.test.mjs`. Run `python3 -m http.server 8000` and open `http://localhost:8000`. In GitHub Settings → Pages, deploy from the `main` branch, `/ (root)`. Relative asset URLs support project Pages paths.
 
 ## Source and license
 

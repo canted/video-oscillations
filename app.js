@@ -1,4 +1,4 @@
-import { createGradientEditor } from './gradient-editor.mjs';
+import { createGradientEditor } from './gradient-editor.mjs?v=dc8e40c1c7c6';
 // Adapted from freqPhaseMod by Paloma Kop, CC BY-NC-SA 4.0. See README.md.
 // presets: add entries here to grow the preset menu
 const PRESETS = [
@@ -349,6 +349,7 @@ const PRESETS = [
   }
 
   // initial camera request
+  msg.textContent = 'requesting camera…';
   if (!window.isSecureContext || !navigator.mediaDevices){
     msg.textContent = 'camera needs https (or localhost)';
   }

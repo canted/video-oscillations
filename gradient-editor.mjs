@@ -1,4 +1,4 @@
-import { MAX_STOPS, stopColor, gradientModel, sampleGradient, colorCSS } from './gradient.mjs';
+import { MAX_STOPS, stopColor, gradientModel, sampleGradient, colorCSS } from './gradient.mjs?v=5ccfb07b44ef';
 
 export function createGradientEditor() {
   const el = id => document.getElementById(id);
